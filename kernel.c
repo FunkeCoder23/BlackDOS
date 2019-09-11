@@ -19,7 +19,8 @@
 /*                                                                        */
 /*                                                                        */
 /*                                                                        */
-/* Signed:_Aaron Tobias, Matt Stran, Molly Kendrick Date:9/10/19        */
+/* Signed:Aaron Tobias, Matt Stran, Molly Kendrick 						  */
+/* Date:9/10/19         												  */
 /*                                                                        */
 /*                                                                        */
 /* 3460:4/526 BlackDOS2020 kernel, Version 1.03, Fall 2019.               */
@@ -37,12 +38,12 @@ void main()
 
 void printString(char* c, int d)
 {
-   	while(*c)
+   	while(*c) /*test for null-terminating char*/
 	{
-		char al = *c++; 	/*get deref char, and then inc*/
+		char al = *c++; 	/*get deref'd char, and then inc*/
 		char ah = 14;
 		int ax = 3584 + al;  /*ah*256+al*/
-		if (d!=1)
+		if (d!=1)   /* 1->print, 0->display */
 		{
 			interrupt(16, ax, 0, 0, 0);  /* display on screen*/
 		}
@@ -77,11 +78,24 @@ void printLogo()
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
   switch(ax) {  
-   case 0: printString(bx,cx); 
-		break;
-/*      case 1: case 2: case 3: case 4: case 5: */
-/*      case 6: case 7: case 8: case 9: case 10: */
-/*      case 11: case 12: case 13: case 14: case 15: */
+   case 0:  printString(bx,cx); //call printString with 
+			break;
+/*  case 1: 
+	case 2: 
+	case 3: 
+	case 4: 
+	case 5:
+    case 6: 
+	case 7: 
+	case 8: 
+	case 9: 
+	case 10:
+	case 11: 
+	case 12: 
+	case 13: 
+	case 14: 
+	case 15: 
+*/
  default: printString("General BlackDOS error.\r\n\0"); 
   }  
 }
