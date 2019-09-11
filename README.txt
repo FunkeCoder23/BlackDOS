@@ -1,0 +1,10 @@
+Wrote a function printString that accepts a c-string and an integer. 
+The integer's value determined whether the c-string was printed or displayed to the screen.
+We then changed the printString function to an interrupt call.
+This can be tested by changing cx in the interrupt call .
+i.e,    interrupt(33,0,"Print to screen\0",0,0);
+	interrupt(33,0,"Print to printer\0",1,0);
+The interrupt handler will eventually handle all service calls, but is currently handling 
+the printing to screen and printing to the printer.
+This can be tested by changing ax to a value other than 1, which will throw a General Blackdos error to screen. Also shown when using interrupt calls above.
+
