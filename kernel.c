@@ -19,46 +19,41 @@
 /*                                                                        */
 /*                                                                        */
 /*                                                                        */
-/* Signed:_Aaron Tobias, Matt Stran, Molly Kendrick Date:9/10/19        */
+/* Signed: Molly Kendrick, Aaron Tobias, Matt Stran,  Date:9/10/19        */
 /*                                                                        */
 /*                                                                        */
 /* 3460:4/526 BlackDOS2020 kernel, Version 1.03, Fall 2019.               */
 
 void handleInterrupt21(int,int,int,int);
 void printLogo();
-void readString(char*);
 
 void main()
 {
    char string[80];
    makeInterrupt21();
    printLogo();
-   interrupt(33,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
-   
-  interrupt(33,0,"please type random nonsense, thx :)\r\n\0",0,0);
-  readString(&string);
- interrupt(33,0,string,0,0);
+   interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
+   interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
+   interrupt(0x21,1,string,0,0);
+   interrupt(0x21,0,string,0,0);
 
    while(1);
 }
 
 void printString(char* c, int d)
 {
-   	while(*c)
-	{
-		char al = *c++; 	/*get deref char, and then inc*/
-		char ah = 14;
-		int ax = 3584 + al;  /*ah*256+al*/
-		if (d!=1)
-		{
-			interrupt(0x10, ax, 0, 0, 0);  /* display on screen*/
-		}
-		else
-		{
-			interrupt(0x17, al, 0,0,0); /*print out*/
-		}
-	}
-   return;
+  while(*c)
+  {
+    char al = *c++; 	/*get deref char, and then inc*/
+    int ax = 3584 + al;  /*ah*256+al*/
+    if (d!=1) {
+      interrupt(0x10, ax, 0, 0, 0);  /* display on screen*/
+    }
+    else {
+      interrupt(0x17, al, 0,0,0); /*print out*/
+    }
+  }
+  return;
 }
 
 void printLogo()
@@ -70,7 +65,7 @@ void printLogo()
   interrupt(0x21,0,"   //   \\\\        | |_) | | (_| | (__|   <| |__| | |__| |____) |\r\n\0",0,0);
   interrupt(0x21,0,"._/'     `\\.      |____/|_|\\__,_|\\___|_|\\_\\_____/ \\____/|_____/\r\n\0",0,0);
   interrupt(0x21,0," BlackDOS2020 v. 1.03, c. 2019. Based on a project by M. Black. \r\n\0",0,0);
-  interrupt(0x21,0," Author(s): Molly Kendrick, Matt Stran, Aaron Tobias.\r\n\r\n\0",0,0);
+  interrupt(0x21,0," Author(s): Aaron Tobias, Matt Stran, Molly Kendrick.\r\n\r\n\0",0,0);
 }
 
 /* MAKE FUTURE UPDATES HERE */
@@ -78,25 +73,34 @@ void printLogo()
 
 void readString(char* c)
 {
-	int i=0;
-	char* in;
-	do{
-		*in =interrupt(22,0,0,0,0); /*read in character*/
-		if(*in==8)					/*if backspace pressed*/
-		{
-			interrupt(0x21,0,in,0,0);    /*display character*/
-			if(i>0){--i;}				/*decrement array iter*/
-		}
-		else
-		{
-			interrupt(0x21,0,in,0,0);    /* display character*/
-			//c[i]=in;
-			//++i;                                      /*next character location*/
-		}
-		                      
-	} while(*in != 13); 		/*enter pressed*/
-	//c[i]=0x0;					/*add null terminator*/
-	return;
+  int i=0;
+  char* in;
+  do{
+    *in =interrupt(0x16,0,0,0,0); /*read in character*/
+    if(*in==13)
+    {
+      interrupt(0x10, 3584+10, 0, 0, 0);  /* newline*/
+      interrupt(0x10, 3584+*in, 0, 0, 0);  /*Carriage Return*/
+      break;
+    }
+    if(*in==8)
+    {			/* backspace pressed*/
+      interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete character */
+      interrupt(0x10, 3584+32, 0, 0, 0);  /* overwrite with space*/
+      interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete space*/
+      if(i>0) {
+       --i;				/*dec iter*/
+      }
+    }
+    else
+    {
+      interrupt(0x10,3584+*in,0,0,0);    /*display character*/
+      c[i]=*in;
+      ++i;                                      /*next character location*/
+    }
+  } while(1); 		/*enter pressed*/
+  c[i]=0x0;					/*add null terminator*/
+  return;
 }
 
 
@@ -106,12 +110,18 @@ void readString(char* c)
 
 void handleInterrupt21(int ax, int bx, int cx, int dx)
 {
-  switch(ax) {  
-   case 0: printString(bx,cx); 
-		break;
-/*      case 1: case 2: case 3: case 4: case 5: */
+  switch(ax)
+  {
+    case 0:
+      printString(bx,cx);
+      break;
+    case 1:
+      readString(bx);
+      break;
+/*case 2: case 3: case 4: case 5: */
 /*      case 6: case 7: case 8: case 9: case 10: */
 /*      case 11: case 12: case 13: case 14: case 15: */
- default: printString("General BlackDOS error.\r\n\0"); 
-  }  
+    default:
+      printString("General BlackDOS error.\r\n\0");
+  }
 }
