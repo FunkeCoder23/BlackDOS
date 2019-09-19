@@ -26,18 +26,25 @@
 
 void handleInterrupt21(int,int,int,int);
 void printLogo();
+void readInt(int);
+
 
 void main()
 {
-   char string[80];
-   makeInterrupt21();
-   printLogo();
-   interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
-   interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
-   interrupt(0x21,1,string,0,0);
-   interrupt(0x21,0,string,0,0);
+  char string[80];
+  int n;
+  makeInterrupt21();
+  printLogo();
+  interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
+  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
+  interrupt(0x21,1,string,0,0);
+  interrupt(0x21,0,"Your string is: ",0,0);
+  interrupt(0x21,0,string,0,0);
+  interrupt(0x21,0,"\r\n",0,0);
+  interrupt(0x21,0,"Please type a number (0-32767)",0,0);
+  readInt(n);
 
-   while(1);
+  while(1);
 }
 
 void printString(char* c, int d)
@@ -55,6 +62,7 @@ void printString(char* c, int d)
   }
   return;
 }
+
 
 void printLogo()
 {
@@ -103,6 +111,11 @@ void readString(char* c)
   return;
 }
 
+void readInt(int* n)
+{
+  char number[5];
+  readString(number);
+}
 
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */

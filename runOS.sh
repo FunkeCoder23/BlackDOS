@@ -1,1 +1,1 @@
- bochs -f bdos.txt | echo 'c'
+echo "c" | bochs -f bdos.txt
