@@ -27,7 +27,7 @@
 void handleInterrupt21(int,int,int,int);
 void printLogo();
 void readInt(int);
-
+void writeInt(int);
 
 void main()
 {
@@ -43,16 +43,18 @@ void main()
   interrupt(0x21,0,"\r\n",0,0);
   interrupt(0x21,0,"Please type a number (0-32767)",0,0);
   readInt(n);
-
+  writeInt(n);
   while(1);
 }
 
 void printString(char* c, int d)
 {
+  char al;
+  int ax;
   while(*c)
   {
-    char al = *c++; 	/*get deref char, and then inc*/
-    int ax = 3584 + al;  /*ah*256+al*/
+    al = *c++; 	/*get deref char, and then inc*/
+    ax = 3584 + al;  /*ah*256+al*/
     if (d!=1) {
       interrupt(0x10, ax, 0, 0, 0);  /* display on screen*/
     }
@@ -113,11 +115,54 @@ void readString(char* c)
 
 void readInt(int* n)
 {
-  char number[5];
-  readString(number);
+  int num, sum=0;      /*int to return*/
+  char *nstring[5];
+  char nchar; /*char array to store number*/
+  readString(nstring); /*get num from user*/
+  while(*nstring)
+  {
+    nchar = *nstring; 	/*get deref number, and then inc*/
+    *nstring=*nstring+1;
+    num=nchar-'0';
+    sum*=10;            //move digits left
+    sum+=num;           //add new ones digit
+  }
+  n=sum;
+  return;
+}
+
+void writeInt(int num)
+{
+  int i=0;
+  char nstring[5];
+  while (num)
+  {
+    nstring[i++]=(char) (mod(num,10)+'0');
+    num=div(num,10);
+  }
+  interrupt(0x21,0,nstring,0,0);
 }
 
 
+int mod(int a, int b)
+{
+  int x=a;
+  while (x>=b)
+  {
+    x=x-b;
+  }
+  return x;
+}
+
+int div(int a, int b)
+{
+  int q=0;
+  while(q*b<=a)
+  {
+    ++q;
+  }
+  return(q-1);
+}
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
 
