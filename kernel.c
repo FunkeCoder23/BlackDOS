@@ -26,27 +26,26 @@
 
 void handleInterrupt21(int,int,int,int);
 void printLogo();
-void readInt(int);
-void writeInt(int);
 
 void main()
 {
-  char string[80];
   int n;
+  char string[80];
   makeInterrupt21();
   printLogo();
   interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
-//  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
-//  interrupt(0x21,1,string,0,0);
-//  interrupt(0x21,0,"Your string is: ",0,0);
-//  interrupt(0x21,0,string,0,0);
-//  interrupt(0x21,0,"\r\n",0,0);
-    writeInt(25);
-//  interrupt(0x21,0,"Please type a number (0-32767)",0,0);
-//  readInt(n);
-//  writeInt(n);
+  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
+  interrupt(0x21,1,string,0,0);
+  interrupt(0x21,0,"Your string is: ",0,0);
+  interrupt(0x21,0,string,0,0);
+  interrupt(0x21,0,"\r\n",0,0);
+  interrupt(0x21,0,"Please type a number (0-32767)\r\n\0",0,0);
+  interrupt(0x21,14,&n,0,0);
+  interrupt(0x21,13,n,0,0);
   while(1);
 }
+
+
 
 void printString(char* c, int d)
 {
@@ -118,66 +117,62 @@ void readString(char* c)
 
 void readInt(int* n)
 {
-  int num, sum=0, i=0;      /*int to return*/
-  char *nstring[5];
-  char nchar; /*char to store number*/
-  readString(nstring); /*get num from user*/
-  //while(nstring[i])
- // {
- //   ++i;
-  printString(*nstring-'0');
- // {
- //while(*nstring)
- // {
-   // nchar = *nstring; 	/*get deref number, and then inc*/
-   // *nstring=*nstring+1;
-   // num=*nstring-'0';
-   // sum*=10;            //move digits left
-   // sum+=num;           //add new ones digit
-   // nstring++;
-//  }
-//  n=sum;
+  int num = 0, i=0;
+  char nstring[6]; //5 digits and NUL
+
+  interrupt(0x21,1,nstring,0,0);
+  while(nstring[i]!='\0')
+  {
+    num *= 10;
+    num += (nstring[i++]-'0');
+  }
+  *n = num;
   return;
 }
 
-void writeInt(int num)
+void writeInt(int num, int d)
 {
-  int i=0;
-  int revnum=0;
-  char revstring[5], nstring[5];
-  while (num)
+  int i=0, j=0;
+  char nstring[6], revstring[6];//5 digits and NUL
+  if (!num)
   {
-    revnum *= 10;
-    revnum += mod(num,10);
-    num = div(num,10);
-  }  //reverse number
-  while (revnum)
-  {
-    nstring[i++]=(char) (mod(revnum,10)+'0');
-    revnum=div(revnum,10);
-  }  //prints number in correct order
-  interrupt(0x21,0,nstring,0,0);
-}
-
-
-int mod(int a, int b)
-{
-  int x=a;
-  while (x>=b)
-  {
-    x=x-b;
+    nstring[0]='0';
+    nstring[1]='\0';				//if 0, print 0
   }
-  return x;
+  else
+  {
+    while (num)
+    {
+      revstring[i++]=(char) (mod(num,10)+'0');  //store LSD
+      num=div(num,10);                          //new LSD
+    } 				 //stores number in reverse order
+    while(i-- > 0)
+    {
+      nstring[j++]=revstring[i];
+    } 				//reverses (reversed) number
+    nstring[j]='\0';
+  }
+  interrupt(0x21,0,nstring,d,0); //print number
+  return;
 }
 
-int div(int a, int b)
+
+int mod(int n, int d)
+{
+  int q=div(n,d);
+  int r=n-(q*d);
+  return r;
+}
+
+int div(int n, int d)
 {
   int q=0;
-  while(q*b<=a)
+  while(n>=d)
   {
+    n-=d;
     ++q;
   }
-  return(q-1);
+  return q;
 }
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -194,7 +189,14 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
       break;
 /*case 2: case 3: case 4: case 5: */
 /*      case 6: case 7: case 8: case 9: case 10: */
-/*      case 11: case 12: case 13: case 14: case 15: */
+/*      case 11: case 12: */
+    case 13: 
+      writeInt(bx,cx);
+      break;
+    case 14:
+      readInt(bx);
+      break;
+/*  case 15: */
     default:
       printString("General BlackDOS error.\r\n\0");
   }
