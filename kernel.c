@@ -36,14 +36,15 @@ void main()
   makeInterrupt21();
   printLogo();
   interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
-  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
-  interrupt(0x21,1,string,0,0);
-  interrupt(0x21,0,"Your string is: ",0,0);
-  interrupt(0x21,0,string,0,0);
-  interrupt(0x21,0,"\r\n",0,0);
-  interrupt(0x21,0,"Please type a number (0-32767)",0,0);
-  readInt(n);
-  writeInt(n);
+//  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
+//  interrupt(0x21,1,string,0,0);
+//  interrupt(0x21,0,"Your string is: ",0,0);
+//  interrupt(0x21,0,string,0,0);
+//  interrupt(0x21,0,"\r\n",0,0);
+    writeInt(25);
+//  interrupt(0x21,0,"Please type a number (0-32767)",0,0);
+//  readInt(n);
+//  writeInt(n);
   while(1);
 }
 
@@ -55,11 +56,13 @@ void printString(char* c, int d)
   {
     al = *c++; 	/*get deref char, and then inc*/
     ax = 3584 + al;  /*ah*256+al*/
-    if (d!=1) {
-      interrupt(0x10, ax, 0, 0, 0);  /* display on screen*/
-    }
-    else {
+    if (d)
+    {
       interrupt(0x17, al, 0,0,0); /*print out*/
+    }
+    else
+    {
+      interrupt(0x10, ax, 0, 0, 0);  /* display on screen*/
     }
   }
   return;
@@ -115,31 +118,44 @@ void readString(char* c)
 
 void readInt(int* n)
 {
-  int num, sum=0;      /*int to return*/
+  int num, sum=0, i=0;      /*int to return*/
   char *nstring[5];
-  char nchar; /*char array to store number*/
+  char nchar; /*char to store number*/
   readString(nstring); /*get num from user*/
-  while(*nstring)
-  {
-    nchar = *nstring; 	/*get deref number, and then inc*/
-    *nstring=*nstring+1;
-    num=nchar-'0';
-    sum*=10;            //move digits left
-    sum+=num;           //add new ones digit
-  }
-  n=sum;
+  //while(nstring[i])
+ // {
+ //   ++i;
+  printString(*nstring-'0');
+ // {
+ //while(*nstring)
+ // {
+   // nchar = *nstring; 	/*get deref number, and then inc*/
+   // *nstring=*nstring+1;
+   // num=*nstring-'0';
+   // sum*=10;            //move digits left
+   // sum+=num;           //add new ones digit
+   // nstring++;
+//  }
+//  n=sum;
   return;
 }
 
 void writeInt(int num)
 {
   int i=0;
-  char nstring[5];
+  int revnum=0;
+  char revstring[5], nstring[5];
   while (num)
   {
-    nstring[i++]=(char) (mod(num,10)+'0');
-    num=div(num,10);
-  }
+    revnum *= 10;
+    revnum += mod(num,10);
+    num = div(num,10);
+  }  //reverse number
+  while (revnum)
+  {
+    nstring[i++]=(char) (mod(revnum,10)+'0');
+    revnum=div(revnum,10);
+  }  //prints number in correct order
   interrupt(0x21,0,nstring,0,0);
 }
 
