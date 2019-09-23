@@ -89,14 +89,14 @@ void readString(char* c)
   char* in;
   do{
     *in =interrupt(0x16,0,0,0,0); /*read in character*/
-    if(*in==13)
+    if(*in==13)                            //Enter pressed
     {
-      interrupt(0x10, 3584+10, 0, 0, 0);  /* newline*/
+      interrupt(0x10, 3584+10, 0, 0, 0);  /* newline*/ //3584 = (ax=14)*256
       interrupt(0x10, 3584+*in, 0, 0, 0);  /*Carriage Return*/
       break;
     }
     if(*in==8)
-    {			/* backspace pressed*/
+    {			                     /* backspace pressed*/
       interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete character */
       interrupt(0x10, 3584+32, 0, 0, 0);  /* overwrite with space*/
       interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete space*/
@@ -121,12 +121,12 @@ void readInt(int* n)
   char nstring[6]; //5 digits and NUL
 
   interrupt(0x21,1,nstring,0,0);
-  while(nstring[i]!='\0')
+  while(nstring[i]!='\0')  //until end of string
   {
-    num *= 10;
-    num += (nstring[i++]-'0');
+    num *= 10;				//move digit left
+    num += (nstring[i++]-'0');  //read in LSD
   }
-  *n = num;
+  *n = num;                 //return num
   return;
 }
 
@@ -134,10 +134,10 @@ void writeInt(int num, int d)
 {
   int i=0, j=0;
   char nstring[6], revstring[6];//5 digits and NUL
-  if (!num)
+  if (!num)                         //if 0
   {
     nstring[0]='0';
-    nstring[1]='\0';				//if 0, print 0
+    nstring[1]='\0';				//print 0 and NUL
   }
   else
   {
@@ -145,11 +145,11 @@ void writeInt(int num, int d)
     {
       revstring[i++]=(char) (mod(num,10)+'0');  //store LSD
       num=div(num,10);                          //new LSD
-    } 				 //stores number in reverse order
+    } 				                            //stores number in reverse order
     while(i-- > 0)
     {
-      nstring[j++]=revstring[i];
-    } 				//reverses (reversed) number
+      nstring[j++]=revstring[i];     //reverses (reversed) number
+    } 				
     nstring[j]='\0';
   }
   interrupt(0x21,0,nstring,d,0); //print number
