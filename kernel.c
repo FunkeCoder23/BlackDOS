@@ -26,13 +26,23 @@
 
 void handleInterrupt21(int,int,int,int);
 void printLogo();
-
+void readSectors(char, int, int);
 void main()
 {
   int n;
   char string[80];
+  char buffer[512];
   makeInterrupt21();
+  for (n = 0; n < 512; ++n) buffer[n] = 0;
+  buffer[0] = 0;
+  buffer[1] = 11;
+  interrupt(0x21, 6, buffer, 258, 1);
+  interrupt(0x21, 12, buffer[0] + 1, buffer[1] + 1, 0);
   printLogo();
+  interrupt(0x21, 2, buffer, 30, 1);
+  interrupt(0x21, 0, buffer, 0, 0);
+  while(1);
+
   interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
   interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
   interrupt(0x21,1,string,0,0);
@@ -43,6 +53,8 @@ void main()
   interrupt(0x21,14,&n,0,0);
   interrupt(0x21,13,n,0,0);
   while(1);
+
+
 }
 
 
@@ -149,7 +161,7 @@ void writeInt(int num, int d)
     while(i-- > 0)
     {
       nstring[j++]=revstring[i];     //reverses (reversed) number
-    } 				
+    }
     nstring[j]='\0';
   }
   interrupt(0x21,0,nstring,d,0); //print number
@@ -174,6 +186,52 @@ int div(int n, int d)
   }
   return q;
 }
+
+void readSectors(char *buffer, int sector, int sectorCount)
+{
+  int relSecNo = mod(sector, 18) + 1;
+  int headNo = mod( (div(sector, 18)), 2);
+  int trackNo = div(sector, 36);
+  int AX = 512 + sectorCount;
+  int CX = trackNo * 256 +relSecNo;
+  int DX = headNo * 256;
+
+  interrupt(0x13, AX, buffer, CX, DX);
+}
+
+void writeSectors(char *buffer, int sector, int sectorCount)
+{
+  int relSecNo = mod(sector, 18) + 1;
+  int headNo = mod( (div(sector, 18)), 2);
+  int trackNo = div(sector, 36);
+  int AX = 768 + sectorCount;
+  int CX = trackNo * 256 +relSecNo;
+  int DX = headNo * 256;
+
+  interrupt(0x13, AX, buffer, CX, DX);
+}
+
+void clearScreen(int bg, int fg)
+{
+  int i;
+  for (i = 0; i < 24; ++i)
+  {
+    interrupt(0x10, 3584+13, 0, 0, 0);    //24 carriage returns
+  }
+
+  interrupt(0x10, 512, 0, 0, 0);
+  if ((bg > 8) || (fg > 16))
+  {
+    return;
+  }
+
+  if ((bg > 0) && (fg > 0))
+  {
+    interrupt(0x10, 1536, 4096 * (bg - 1) + 256 * (fg -1), 0, 6223);
+  }
+
+}
+
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
 
@@ -187,10 +245,19 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 1:
       readString(bx);
       break;
-/*case 2: case 3: case 4: case 5: */
-/*      case 6: case 7: case 8: case 9: case 10: */
-/*      case 11: case 12: */
-    case 13: 
+    case 2:
+      readSectors(bx,cx,dx);
+      break;
+/*case 3: case 4: case 5: */
+    case 6:
+      writeSectors(bx,cx,dx);
+      break;
+      /*case 7: case 8: case 9: case 10: */
+/*      case 11: */
+    case 12:
+      clearScreen(bx, cx);
+      break;
+    case 13:
       writeInt(bx,cx);
       break;
     case 14:

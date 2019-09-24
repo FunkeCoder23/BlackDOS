@@ -1,6 +1,6 @@
 Wrote compileOS.sh which compiles and links the bootloader and kernel, can be tested by either double clicking, or (preferably) running in terminal with ./compileOS.sh
 
-Wrote a function printString that accepts a c-string and an integer. 
+Wrote a function printString that accepts a c-string and an integer.
 The integer's value determined whether the c-string was printed or displayed to the screen.
 We then changed the printString function to an interrupt call.
 This can be tested by changing cx in the interrupt call .
@@ -18,3 +18,15 @@ interrupt(33,1,2019,0,0);
 Added readInt(*int)
 invokes readString, stores string (backwards), reverses string, and then converts to an int
 interrupt(33,1,&num,0,0);
+
+Added readSectors(char*, int, int)
+takes an absolute sector, the total number of sectors to be read, and stores it in the character array
+interrupt(0x21, 2, buffer, 258, 1);
+
+Added writeSectors(char*, int, int)
+takes an absolute sector, the total number of sectors to be written, and stores it on the disk
+interrupt(0x21, 6, buffer, 258, 1);
+
+Added clearScreen(int, int)
+takes two ints, one for the foreground and one for the background and changes the colors and clears the screen
+interrupt(0x21, 12, buffer[0] + 1, buffer[1] + 1, 0);
