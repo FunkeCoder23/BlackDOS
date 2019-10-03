@@ -30,3 +30,13 @@ interrupt(0x21, 6, buffer, 258, 1);
 Added clearScreen(int, int)
 takes two ints, one for the foreground and one for the background and changes the colors and clears the screen
 interrupt(0x21, 12, buffer[0] + 1, buffer[1] + 1, 0);
+
+Added runProgram(int, int, int)
+takes the starting sector of a program on disk, reads the sectors into a buffer
+then transfers the buffer into memory (putInMemory) at the segment*4096(base segment location)
+then calls launchProgram to start execution
+runProgram(30,1,2); //runs program stored in sector 30 of length 1 sector, stores in segment 2
+
+Added stop()
+infinite loop
+interrupt(0x21,5,0,0,0);

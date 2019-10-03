@@ -27,33 +27,18 @@
 void handleInterrupt21(int,int,int,int);
 void printLogo();
 void readSectors(char, int, int);
+void runProgram(int, int, int);
+
 void main()
 {
-  int n;
-  char string[80];
   char buffer[512];
   makeInterrupt21();
-  for (n = 0; n < 512; ++n) buffer[n] = 0;
-  buffer[0] = 0;
-  buffer[1] = 11;
-  interrupt(0x21, 6, buffer, 258, 1);
-  interrupt(0x21, 12, buffer[0] + 1, buffer[1] + 1, 0);
+  interrupt(0x21,2,buffer,258,1);
+  interrupt(0x21,12,buffer[0]+1,buffer[1]+1,0);
   printLogo();
-  interrupt(0x21, 2, buffer, 30, 1);
-  interrupt(0x21, 0, buffer, 0, 0);
-  while(1);
-
-  interrupt(0x21,0,"Hello world from Matt Stran, Molly Kendrick, Aaron Tobias.\r\n\0",1,0);
-  interrupt(0x21,0,"please type random nonsense, thx :)\r\n\0",0,0);
-  interrupt(0x21,1,string,0,0);
-  interrupt(0x21,0,"Your string is: ",0,0);
-  interrupt(0x21,0,string,0,0);
-  interrupt(0x21,0,"\r\n",0,0);
-  interrupt(0x21,0,"Please type a number (0-32767)\r\n\0",0,0);
-  interrupt(0x21,14,&n,0,0);
-  interrupt(0x21,13,n,0,0);
-  while(1);
-
+  runProgram(30,1,2);
+  interrupt(0x21,0,"Error if this Executes.\r\n\0",0,0);
+  interrupt(0x21,5,0,0,0);
 
 }
 
@@ -111,7 +96,7 @@ void readString(char* c)
     {			                     /* backspace pressed*/
       interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete character */
       interrupt(0x10, 3584+32, 0, 0, 0);  /* overwrite with space*/
-      interrupt(0x10, 3584+*in, 0, 0, 0);  /* delete space*/
+      interrupt(0x10, 3584+*in, 5,0, 0, 0);  /* delete space*/
       if(i>0) {
        --i;				/*dec iter*/
       }
@@ -232,6 +217,22 @@ void clearScreen(int bg, int fg)
 
 }
 
+void runProgram(int start, int size, int segment)
+{
+  int i, segLoc;
+  char buffer[13312];  //Big char array
+  readSectors(buffer,start,size); //store sectors into buffer
+  segLoc = segment * 4096; //segment * 0x1000 = base location of seg
+  for (i = 0; i < 13311; ++i) //transfer 13312 bytes to memory
+  {
+    putInMemory(segLoc, i, buffer[i]);//transfer byte i from buffer to memory
+  }
+  launchProgram(segLoc);
+
+}
+
+void stop() { while(1); }
+
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
 
@@ -248,7 +249,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 2:
       readSectors(bx,cx,dx);
       break;
-/*case 3: case 4: case 5: */
+/*case 3: case 4: */
+    case 5:
+      stop();
+      break;
     case 6:
       writeSectors(bx,cx,dx);
       break;
