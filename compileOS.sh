@@ -12,4 +12,12 @@ ld86 -o kernel -d kernel.o kasm.o
 echo "copy kernel to bootdisk"
 dd if=kernel of=floppya.img bs=512 conv=notrunc seek=259
 dd if=config of=floppya.img bs=512 count=1 seek=258 conv=notrunc
-dd if=fib of=floppya.img bs=512 count=1 seek=30 conv=notrunc
+
+echo "compiling shell"
+bcc -ansi -c -o Shell.o Shell.c
+echo "converting shell to asm"
+as86 Shell.asm -o basm.o
+echo "linking shell"
+ld86 -o Shell -d Shell.o basm.o
+echo "copy shell to bootdisk"
+dd if=Shell of=floppya.img bs=512 count=10 conv=notrunc seek=30
