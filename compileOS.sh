@@ -15,8 +15,6 @@ dd if=config of=floppya.img bs=512 count=1 seek=258 conv=notrunc
 
 echo "compiling shell"
 bcc -ansi -c -o Shell.o Shell.c
-echo "converting shell to asm"
-as86 Shell.asm -o basm.o
 echo "linking shell"
 ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"

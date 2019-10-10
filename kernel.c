@@ -202,6 +202,7 @@ void clearScreen(int bg, int fg)
   for (i = 0; i < 24; ++i)
   {
     interrupt(0x10, 3584+13, 0, 0, 0);    //24 carriage returns
+    interrupt(0x10, 3584+10, 0, 0, 0);    //24 newlines
   }
 
   interrupt(0x10, 512, 0, 0, 0);
