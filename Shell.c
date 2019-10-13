@@ -111,13 +111,13 @@ void main()
         interrupt(0x21,0,"Enter file destination: \r\n",0,0);
         interrupt(0x21,1,arg2,0,0);
       }
-      interrupt(0x21,cmd,0,0)
-      interrupt(0x21,arg1,0,0)
-      interrupt(0x21,arg2,0,0)
+      interrupt(0x21,cmd,0,0);
+      interrupt(0x21,arg1,0,0);
+      interrupt(0x21,arg2,0,0);
     }//copy
     else if (cmd[0]=='d'&&cmd[1]=='d'&&cmd[2]=='i'&&cmd[3]=='r')
     {
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//ddir
     else if (cmd[0]=='e'&&cmd[1]=='x'&&cmd[2]=='e'&&cmd[3]=='o')
     {
@@ -127,11 +127,11 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//exec
     else if (cmd[0]=='h'&&cmd[1]=='e'&&cmd[2]=='l'&&cmd[3]=='p')
     {
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//help
     else if (cmd[0]=='p'&&cmd[1]=='r'&&cmd[2]=='n'&&cmd[3]=='t')
     {
@@ -141,7 +141,7 @@ void main()
       interrupt(0x21,1,arg1,0,0);
       args=2;
       }
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//prnt
     else if (cmd[0]=='r'&&cmd[1]=='e'&&cmd[2]=='m'&&cmd[3]=='v')
     {
@@ -151,11 +151,11 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//remv
     else if (cmd[0]=='s'&&cmd[1]=='e'&&cmd[2]=='n'&&cmd[3]=='v')
     {
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//senv
     else if (cmd[0]=='s'&&cmd[1]=='h'&&cmd[2]=='o'&&cmd[3]=='w')
     {
@@ -165,7 +165,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//show
     else if (cmd[0]=='t'&&cmd[1]=='w'&&cmd[2]=='e'&&cmd[3]=='t')
     {
@@ -175,7 +175,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,cmd,0,0)
+      interrupt(0x21,cmd,0,0);
     }//twet
     else
     {
