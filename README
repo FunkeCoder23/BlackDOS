@@ -40,3 +40,12 @@ runProgram(30,1,2); //runs program stored in sector 30 of length 1 sector, store
 Added stop()
 infinite loop
 interrupt(0x21,5,0,0,0);
+
+
+Added Shell.c
+-> added parser to take input and parse into cmd, arg1, arg2
+-> compares cmd to available commands
+-> if missing arg1 or 2, prompts to enter
+to test:
+run kernel, wait for shell prompt, type commands: exec, senv, boot, clrs, prnt, echo,...
+
