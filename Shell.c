@@ -97,6 +97,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);   //readString(arg1)
       }
       interrupt(0x21,0,arg1,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
     }//echo
     else if (cmd[0]=='c'&&cmd[1]=='o'&&cmd[2]=='p'&&cmd[3]=='y')
     {
@@ -112,7 +113,9 @@ void main()
         interrupt(0x21,1,arg2,0,0);
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg2,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//copy
@@ -121,7 +124,7 @@ void main()
       interrupt(0x21,0,cmd,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//ddir
-    else if (cmd[0]=='e'&&cmd[1]=='x'&&cmd[2]=='e'&&cmd[3]=='o')
+    else if (cmd[0]=='e'&&cmd[1]=='x'&&cmd[2]=='e'&&cmd[3]=='c')
     {
       if(args==1)
       {
@@ -130,6 +133,7 @@ void main()
         args=2;
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//exec
@@ -147,6 +151,7 @@ void main()
       args=2;
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//prnt
@@ -159,7 +164,9 @@ void main()
         args=2;
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg2,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//remv
@@ -177,8 +184,8 @@ void main()
         args=2;
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,arg2,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//show
     else if (cmd[0]=='t'&&cmd[1]=='w'&&cmd[2]=='e'&&cmd[3]=='t')
@@ -190,6 +197,7 @@ void main()
         args=2;
       }
       interrupt(0x21,0,cmd,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//twet
@@ -200,6 +208,7 @@ void main()
   }//cmdinput
 }
 
+/*  //Doesn't work. If we can get it to work, will make cmd parsing much neater
 int strEql(char s1[], char s2[])
 {
   int i;
@@ -211,3 +220,4 @@ int strEql(char s1[], char s2[])
   }
   return 1;
 }
+*/
