@@ -5,6 +5,7 @@ void main()
   int i;//internal word iterator
   int j;//total string iterator
   char input[80];
+  int args=0;
   char cmd[80];
   char arg1[80];
   char arg2[80];
@@ -13,6 +14,7 @@ void main()
 
   while(1)
   {
+    args=0;
     for(i=0;i<80;++i)
     {
       input[i]='\0';  //clear input buffer
@@ -26,26 +28,44 @@ void main()
 
     interrupt(0x21,0,"^(~(oo)~)^: ",0,0);
     interrupt(0x21,1,input,0,0);   //readString(input)
-    while(input[i]!=' '&& input[i]!='\0') //check for space or endline
+    while(input[j]!=' '&& input[j]!='\0' && j<80) //check for space or endline
     {
+
+      if(input[j]=='\0')  //if reaches NUL, only one arg
+      {
+        args=1;
+      }
       cmd[i]=input[j]; //store cmd word
       i++;  //inc cmd iter
       j++;  //inc string iterator
     }
+      cmd[i]='\0'; //terminate cmd
+
     i=0; //reset internal iter
-    while(input[i]!=' '&& input[i]!='\0') //check for space or endline
+    while(input[j]!=' '&& j<80 && args==0) //check for space or endline
     {
+      if(input[j]=='\0')  //if reaches NUL, only two args
+      {
+        args=2;
+      }
       arg1[i]=input[j]; //store cmd word
       i++;  //inc cmd iter
       j++;  //inc string iterator
     }
+    arg1[i]='\0' //terminate arg1;
+
     i=0; //reset internal iter
-    while(input[i]!=' '&& input[i]!='\0') //check for space or endline
+    while(input[j]!=' ' && j<80  && args==0) //check for space or endline
     {
+      if(input[j]=='\0')
+      {
+        args=3;
+      }
       arg2[i]=input[j]; //store cmd word
       i++;  //inc cmd iter
       j++;  //inc string iterator
     }
+
     interrupt(0x21,0,cmd,0,0);
     interrupt(0x21,0,"\r\n");
     interrupt(0x21,0,arg1,0,0);
