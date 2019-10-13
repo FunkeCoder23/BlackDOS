@@ -10,13 +10,13 @@ void main()
   char arg1[80];
   char arg2[80];
   interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
-  interrupt(0x21,0,"=========================\r\n",0,0);
-  interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n",0,0);
-  interrupt(0x21,0,"=========================\r\n",0,0);
+  interrupt(0x21,0,"=========================\r\n\0",0,0);
+  interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
+  interrupt(0x21,0,"=========================\r\n\0",0,0);
 
-  while(1);
-  {
   cmdinput:
+  while(1)
+  {
     args=0;
     for(i=0;i<80;++i)
     {
@@ -28,42 +28,33 @@ void main()
 
     i=0;
     j=0;
-    cmd[0]='\0';
-    arg1[0]='0';
-    arg2[0]='0';
 
-    interrupt(0x21,0,"^(~(oo)~)^: ",0,0);
+    interrupt(0x21,0,"^(~(oo)~)^: \0",0,0);
     interrupt(0x21,1,input,0,0);   //readString(input)
+
     while(input[j]!=' ' && j<79) //check for space or endline
     {
 
-      if(input[j]=='\0')  //if reaches NUL, only one arg
+    if(input[j]=='\0')  //if reaches NUL, only one arg
       {
         args=1;
         break;
       }
-      cmd[i++]=input[j++]; //store cmd word
-    }
+
+    cmd[i++]=input[j++]; //store cmd word
+   }
 
     if(i!=4)
     {
       interrupt(0x21,0,"Command not found\r\n",0,0); //non-4-letter cmd
-      goto cmdinput;                                   //grab new input
+      goto cmdinput; //grab new input
     }
     cmd[i]='\0'; //terminate cmd
-/*
-    while(args==0 && input[j]==' ')
-    {
-      j++;  //skip spaces
-    }
-*/
-    interrupt(0x21,0,cmd,0,0);
-    interrupt(0x21,0,"\r\n",0,0);
-//    PRINTN(j);
-//    PRINTS("\r\n");
-/*
+
+    while(input[++j]==' '); //skip spaces
+
     i=0; //reset internal iter
-    while(input[j]!=' ' && j<80 && args==0) //check for space or endline
+    while(input[j]!=' ' && j<79 && args==0) //check for space or endline
     {
       if(input[j]=='\0')  //if reaches NUL, only two args
       {
@@ -75,10 +66,9 @@ void main()
       j++;  //inc string iterator
     }
     arg1[i]='\0'; //terminate arg1;
-    interrupt(0x21,0,arg1,0,0);
-    interrupt(0x21,0,"\r\n",0,0);
 
-/*
+    while(input[++j]==' '); //skip spaces
+
     i=0; //reset internal iter
     while(input[j]!=' ' && j<80  && args==0) //check for space or endline
     {
@@ -117,5 +107,5 @@ void main()
         interrupt(0x21,0,"Bad command, YA BASIC",0,0);
     }
 */
-  }//end while
+  }//cmdinput
 }

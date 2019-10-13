@@ -36,7 +36,7 @@ void main()
   interrupt(0x21,2,buffer,258,1);
   interrupt(0x21,12,buffer[0]+1,buffer[1]+1,0);
   printLogo();
-  runProgram(30,1,2);
+  runProgram(30,10,2);
   interrupt(0x21,0,"Error if this Executes.\r\n\0",0,0);
   interrupt(0x21,5,0,0,0);
 
