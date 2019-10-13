@@ -18,6 +18,9 @@ void main()
     for(i=0;i<80;++i)
     {
       input[i]='\0';  //clear input buffer
+      cmd[i]='\0';  //clear cmd buffer
+      arg1[i]='\0';  //clear arg1 buffer
+      arg2[i]='\0';  //clear arg2 buffer
     }
 
     i=0;
@@ -95,6 +98,6 @@ void main()
       default:
         interrupt(0x21,0,"Bad command, YA BASIC",0,0);
     }
-    */
-  }
+*/
+  }//end while
 }
