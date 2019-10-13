@@ -36,10 +36,10 @@ void main()
     {
 
     if(input[j]=='\0')  //if reaches NUL, only one arg
-      {
+    {
         args=1;
         break;
-      }
+    }
 
     cmd[i++]=input[j++]; //store cmd word
    }
@@ -81,31 +81,38 @@ void main()
       j++;  //inc string iterator
     }
 
-    interrupt(0x21,0,arg2,0,0);
-    interrupt(0x21,0,"\r\n",0,0);
-
-    /*
-    *input++;
-    j=0;
-    while(*input!=' ' || *input!='\0') //check for space or endline
+   // if (cmd[0]=='b'&&cmd[1]=='o'&&cmd[2]=='o'&&cmd[3]=='t')
+    if (strEql(cmd,"boot"))
     {
-      msg1[j]=*input++; //store cmd word
-      j++;
+      interrupt(0x19,0,0,0,0);
     }
-    switch(cmd)
+    else if (cmd =="clrs")
     {
-      case "boot":
-        interrupt(0x19,0,0,0,0);
-        break;
-      case "clrs":
-        interrupt(0x21,12,10,20,0);
-        break;
-      case "echo":
-        interrupt(0x21,0,msg1,0,0);
-        break;
-      default:
-        interrupt(0x21,0,"Bad command, YA BASIC",0,0);
+      interrupt(0x21,12,10,20,0);
     }
-*/
+    else if (cmd=="echo")
+    {
+      if(arg1[0]='\0')
+      {
+        interrupt(0x21,1,arg1,0,0);   //readString(arg1)
+      }
+      interrupt(0x21,0,arg1,0,0);
+    }
+    else
+    {
+      interrupt(0x21,0,"Bad command, YA BASIC\r\n",0,0);
+    }
   }//cmdinput
+}
+
+int strEql(char s1[], char s2[])
+{
+  int i;
+  for(i=0;1;i++)
+  {
+    if(s1[i] != s2[i]) return 0;
+    if(s1[i] == '\0' && s2[i] != '\0') return 0;
+    if(s1[i] != '\0' && s2[i] == '\0') return 0;
+  }
+  return 1;
 }
