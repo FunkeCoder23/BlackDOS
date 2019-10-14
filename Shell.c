@@ -9,6 +9,7 @@ void main()
   char cmd[80];
   char arg1[80];
   char arg2[80];
+  char msg[80];
   interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
   interrupt(0x21,0,"=========================\r\n\0",0,0);
   interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
@@ -61,8 +62,8 @@ void main()
         args=2;
         break;
       }
-      arg1[i]=input[j]; //store cmd word
-      i++;  //inc cmd iter
+      arg1[i]=input[j]; //store arg1 word
+      i++;  //inc arg1 iter
       j++;  //inc string iterator
     }
     arg1[i]='\0'; //terminate arg1;
@@ -76,8 +77,8 @@ void main()
       {
         args=3;
       }
-      arg2[i]=input[j]; //store cmd word
-      i++;  //inc cmd iter
+      arg2[i]=input[j]; //store arg2 word
+      i++;  //inc arg2 iter
       j++;  //inc string iterator
     }
 
@@ -94,7 +95,15 @@ void main()
       if(args==1)
       {
         interrupt(0x21,0,"Please enter the message to echo: \r\n",0,0);
-        interrupt(0x21,1,arg1,0,0);   //readString(arg1)
+        interrupt(0x21,1,msg1,0,0);   //readString(arg1)
+      }
+      else
+      {
+        for(i=4;input[i]!='\0';i++)
+        {
+          msg[i-4]=input[i];
+        }
+        msg[i]='\0';
       }
       interrupt(0x21,0,arg1,0,0);
     }//echo
