@@ -1,5 +1,7 @@
 #include "blackdos.h"
 
+int strEql(char[],char[]);
+
 void main()
 {
   int i;//internal word iterator
@@ -25,6 +27,7 @@ void main()
       cmd[i]='\0';  //clear cmd buffer
       arg1[i]='\0';  //clear arg1 buffer
       arg2[i]='\0';  //clear arg2 buffer
+      msg[i]='\0';  //clear msg buffer
     }
 
     i=0;
@@ -95,7 +98,7 @@ void main()
       if(args==1)
       {
         interrupt(0x21,0,"Please enter the message to echo: \r\n",0,0);
-        interrupt(0x21,1,msg1,0,0);   //readString(arg1)
+        interrupt(0x21,1,msg,0,0);   //readString(arg1)
       }
       else
       {
@@ -105,7 +108,8 @@ void main()
         }
         msg[i]='\0';
       }
-      interrupt(0x21,0,arg1,0,0);
+      interrupt(0x21,0,msg,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
     }//echo
     else if (strEql(cmd,"copy"))
     {
@@ -223,9 +227,6 @@ int strEql(char s1[], char s2[])
   int i;
   for(i=0;i>-1;i++)
   {
-    printf("S1[%d] = %c\n",i,s1[i]);
-    printf("S2[%d] = %c\n",i,s2[i]);
-
     if(s1[i] != s2[i]) return 0;
     else if(s1[i] == '\0' && s2[i] == '\0') return 1;
   }
