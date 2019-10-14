@@ -46,7 +46,7 @@ void main()
 
     if(i!=4)
     {
-      interrupt(0x21,0,"Command not found\r\n",0,0); //non-4-letter cmd
+      interrupt(0x21,0,"Command not found.\r\n",0,0); //non-4-letter cmd
       goto cmdinput; //grab new input
     }
     cmd[i]='\0'; //terminate cmd
@@ -81,15 +81,15 @@ void main()
       j++;  //inc string iterator
     }
 
-    if (cmd[0]=='b'&&cmd[1]=='o'&&cmd[2]=='o'&&cmd[3]=='t')
+    if (strEql(cmd,"boot"))
     {
       interrupt(0x19,0,0,0,0);
     }//boot
-    else if (cmd[0]=='c'&&cmd[1]=='l'&&cmd[2]=='r'&&cmd[3]=='s')
+    else if (strEql(cmd,"clrs"))
     {
       interrupt(0x21,12,10,20,0);
     }//clrs
-    else if (cmd[0]=='e'&&cmd[1]=='c'&&cmd[2]=='h'&&cmd[3]=='o')
+    else if (strEql(cmd,"echo"))
     {
       if(args==1)
       {
@@ -97,9 +97,8 @@ void main()
         interrupt(0x21,1,arg1,0,0);   //readString(arg1)
       }
       interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
     }//echo
-    else if (cmd[0]=='c'&&cmd[1]=='o'&&cmd[2]=='p'&&cmd[3]=='y')
+    else if (strEql(cmd,"copy"))
     {
       if(args==1)
       {
@@ -119,12 +118,12 @@ void main()
       interrupt(0x21,0,arg2,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//copy
-    else if (cmd[0]=='d'&&cmd[1]=='d'&&cmd[2]=='i'&&cmd[3]=='r')
+    else if (strEql(cmd,"ddir"))
     {
       interrupt(0x21,0,cmd,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//ddir
-    else if (cmd[0]=='e'&&cmd[1]=='x'&&cmd[2]=='e'&&cmd[3]=='c')
+    else if (strEql(cmd,"exec"))
     {
       if(args==1)
       {
@@ -137,12 +136,12 @@ void main()
       interrupt(0x21,0,arg1,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//exec
-    else if (cmd[0]=='h'&&cmd[1]=='e'&&cmd[2]=='l'&&cmd[3]=='p')
+    else if (strEql(cmd,"help"))
     {
       interrupt(0x21,0,cmd,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//help
-    else if (cmd[0]=='p'&&cmd[1]=='r'&&cmd[2]=='n'&&cmd[3]=='t')
+    else if (strEql(cmd,"prnt"))
     {
       if(args==1)
       {
@@ -170,12 +169,12 @@ void main()
       interrupt(0x21,0,arg2,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//remv
-    else if (cmd[0]=='s'&&cmd[1]=='e'&&cmd[2]=='n'&&cmd[3]=='v')
+    else if (strEql(cmd,"senv"))
     {
       interrupt(0x21,0,cmd,0,0);
       interrupt(0x21,0,"\r\n",0,0);
     }//senv
-    else if (cmd[0]=='s'&&cmd[1]=='h'&&cmd[2]=='o'&&cmd[3]=='w')
+    else if (strEql(cmd,"show"))
     {
       if(args==1)
       {
@@ -187,8 +186,10 @@ void main()
       interrupt(0x21,0,"\r\n",0,0);
       interrupt(0x21,0,arg1,0,0);
       interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,0,arg2,0,0);
+      interrupt(0x21,0,"\r\n",0,0);
     }//show
-    else if (cmd[0]=='t'&&cmd[1]=='w'&&cmd[2]=='e'&&cmd[3]=='t')
+    else if (strEql(cmd,"twet"))
     {
       if(args==1)
       {
@@ -208,16 +209,16 @@ void main()
   }//cmdinput
 }
 
-/*  //Doesn't work. If we can get it to work, will make cmd parsing much neater
 int strEql(char s1[], char s2[])
 {
   int i;
-  for(i=0;1;i++)
+  for(i=0;i>-1;i++)
   {
+    printf("S1[%d] = %c\n",i,s1[i]);
+    printf("S2[%d] = %c\n",i,s2[i]);
+
     if(s1[i] != s2[i]) return 0;
-    if(s1[i] == '\0' && s2[i] != '\0') return 0;
-    if(s1[i] != '\0' && s2[i] == '\0') return 0;
+    else if(s1[i] == '\0' && s2[i] == '\0') return 1;
   }
   return 1;
 }
-*/
