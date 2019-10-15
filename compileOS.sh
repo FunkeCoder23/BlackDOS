@@ -11,6 +11,9 @@ echo "linking kernel"
 ld86 -o kernel -d kernel.o kasm.o
 echo "copy kernel to bootdisk"
 dd if=kernel of=floppya.img bs=512 conv=notrunc seek=259
+echo "copy diskmap file to bootdisk"
+dd if=map of=floppya.img bs=512 count=1 seek=256 conv=notrunc
+echo "copy config file to bootdisk"
 dd if=config of=floppya.img bs=512 count=1 seek=258 conv=notrunc
 
 echo "compiling shell"
@@ -19,3 +22,8 @@ echo "linking shell"
 ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"
 dd if=Shell of=floppya.img bs=512 count=10 conv=notrunc seek=30
+
+
+./loadFile kitty2
+./loadFile fib
+./loadFile msg

@@ -28,17 +28,22 @@ void handleInterrupt21(int,int,int,int);
 void printLogo();
 void readSectors(char, int, int);
 void runProgram(int, int, int);
+void readFile(char, char, int);
 
 void main()
 {
   char buffer[512];
+  int size;
   makeInterrupt21();
-  interrupt(0x21,2,buffer,258,1);
-  interrupt(0x21,12,buffer[0]+1,buffer[1]+1,0);
+  /* Step 0 – config file */
+  interrupt(33,2,buffer,258,1);
+  interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
   printLogo();
-  runProgram(30,10,2);
-  interrupt(0x21,0,"Error if this Executes.\r\n\0",0,0);
-  interrupt(0x21,5,0,0,0);
+  /* Step 1 – load and print msg file (Lab 3) */
+  interrupt(33,3,"msg\0",buffer,&size);
+  interrupt(33,0,buffer,0,0);
+
+  while (1);
 
 }
 
@@ -232,7 +237,36 @@ void runProgram(int start, int size, int segment)
 
 }
 
+int strEql(char s1[], char s2[])
+{
+  int i;
+  for(i=0;i>-1;i++)
+  {
+    if(s1[i] != s2[i]) return 0;
+    else if(s1[i] == '\0' && s2[i] == '\0') return 1;
+  }
+  return 1;
+}
+
 void stop() { while(1); }
+
+void readFile(char* fname, char* buffer, int* size)
+{
+  char dir[512];
+  int i;
+  interrupt(0x21,2,dir,257,1); //load disk dir into dir
+  for(i=0;i<512;i+=16)
+  {
+    if(strEql(&dir[i],fname))
+    {
+      size=dir[i+9];
+      interrupt(0x21,2,buffer,dir[i+8],dir[i+9]);//file found, load into buffer
+      return;
+    }
+  }
+  interrupt(0x21,0,"File not found",0,0);
+}
+
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -250,7 +284,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 2:
       readSectors(bx,cx,dx);
       break;
-/*case 3: case 4: */
+    case 3:
+      readFile(bx,cx,dx);
+      break;
+    /*case 4: */
     case 5:
       stop();
       break;
