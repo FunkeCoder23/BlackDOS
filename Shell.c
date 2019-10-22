@@ -6,12 +6,14 @@ void main()
 {
   int i;//internal word iterator
   int j;//total string iterator
+  int size;
   char input[80];
   int args=0;
   char cmd[80];
   char arg1[80];
   char arg2[80];
   char msg[80];
+  char buffer[512];
   interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
   interrupt(0x21,0,"=========================\r\n\0",0,0);
   interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
@@ -21,6 +23,10 @@ void main()
   while(1)
   {
     args=0;
+    for(i=0;i<512;++i)
+    {
+      buffer[i]=0; //clear buffer
+    }
     for(i=0;i<80;++i)
     {
       input[i]='\0';  //clear input buffer
@@ -133,8 +139,7 @@ void main()
     }//copy
     else if (strEql(cmd,"ddir"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"ddir",4,0);
     }//ddir
     else if (strEql(cmd,"exec"))
     {
@@ -144,10 +149,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,arg1,4,0);
     }//exec
     else if (strEql(cmd,"help"))
     {
@@ -162,10 +164,9 @@ void main()
       interrupt(0x21,1,arg1,0,0);
       args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,3,arg1,buffer,&size);
+      interrupt(0x21,0,buffer,0,0);
+
     }//prnt
     else if (cmd[0]=='r'&&cmd[1]=='e'&&cmd[2]=='m'&&cmd[3]=='v')
     {
@@ -184,8 +185,7 @@ void main()
     }//remv
     else if (strEql(cmd,"senv"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"Stenv",4,0);
     }//senv
     else if (strEql(cmd,"show"))
     {
@@ -195,12 +195,8 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,3,arg1,buffer,&size);
+      interrupt(0x21,0,buffer,0,1);
     }//show
     else if (strEql(cmd,"twet"))
     {

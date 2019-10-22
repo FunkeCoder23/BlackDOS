@@ -23,7 +23,10 @@ ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"
 dd if=Shell of=floppya.img bs=512 count=10 conv=notrunc seek=30
 
-
-./loadFile kitty2
+./loadFile Shell
+./loadFile Stenv
 ./loadFile fib
 ./loadFile msg
+./loadFile kitty1
+./loadFile ddir
+./loadFile kitty2

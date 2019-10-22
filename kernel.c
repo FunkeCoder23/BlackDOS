@@ -27,23 +27,23 @@
 void handleInterrupt21(int,int,int,int);
 void printLogo();
 void readSectors(char, int, int);
-void runProgram(int, int, int);
+void runProgram(char, int);
 void readFile(char, char, int);
 
 void main()
 {
-  char buffer[512];
-  int size;
-  makeInterrupt21();
-  /* Step 0 – config file */
-  interrupt(33,2,buffer,258,1);
-  interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
-  printLogo();
-  /* Step 1 – load and print msg file (Lab 3) */
-  interrupt(33,3,"msg\0",buffer,&size);
-  interrupt(33,0,buffer,0,0);
 
-  while (1);
+ char buffer[512];
+ makeInterrupt21();
+ interrupt(33,2,buffer,258,1);
+ interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
+ printLogo();
+ interrupt(33,4,"Shell\0",2,0);
+ interrupt(33,0,"Bad or missing command interpreter.\r\n\0",0,0);
+
+ while (1) ;
+
+
 
 }
 
@@ -223,11 +223,11 @@ void clearScreen(int bg, int fg)
 
 }
 
-void runProgram(int start, int size, int segment)
+void runProgram(char* name, int segment)
 {
   int i, segLoc;
   char buffer[13312];  //Big char array
-  readSectors(buffer,start,size); //store sectors into buffer
+  readFile(name,buffer,segment);
   segLoc = segment * 4096; //segment * 0x1000 = base location of seg
   for (i = 0; i < 13311; ++i) //transfer 13312 bytes to memory
   {
@@ -248,11 +248,12 @@ int strEql(char s1[], char s2[])
   return 1;
 }
 
-void stop() { while(1); }
+void stop() { launchProgram(8192); }
 
 void readFile(char* fname, char* buffer, int* size)
 {
   char dir[512];
+  char map[512];
   int i;
   interrupt(0x21,2,dir,257,1); //load disk dir into dir
   for(i=0;i<512;i+=16)
@@ -264,7 +265,44 @@ void readFile(char* fname, char* buffer, int* size)
       return;
     }
   }
-  interrupt(0x21,0,"File not found",0,0);
+  interrupt(0x21,15,0,0,0);  //call error 0
+}
+
+void error(int bx)
+{
+   switch (bx) {
+	   case 0:
+	   /* error 0 = "File not found." */
+	   interrupt(16, 3654, 0, 0, 0); interrupt(16, 3689, 0, 0, 0); interrupt(16, 3692, 0, 0, 0);
+	   interrupt(16, 3685, 0, 0, 0); interrupt(16, 3616, 0, 0, 0); interrupt(16, 3694, 0, 0, 0);
+	   interrupt(16, 3695, 0, 0, 0); interrupt(16, 3700, 0, 0, 0); interrupt(16, 3616, 0, 0, 0);
+	   interrupt(16, 3686, 0, 0, 0); interrupt(16, 3695, 0, 0, 0); interrupt(16, 3701, 0, 0, 0);
+	   interrupt(16, 3694, 0, 0, 0); interrupt(16, 3684, 0, 0, 0);
+	   break;
+	   case 1:
+	   /* error 1 = "Bad file name." */
+	   interrupt(16, 3650, 0, 0, 0); interrupt(16, 3681, 0, 0, 0); interrupt(16, 3684, 0, 0, 0);
+	   interrupt(16, 3616, 0, 0, 0); interrupt(16, 3686, 0, 0, 0); interrupt(16, 3689, 0, 0, 0);
+	   interrupt(16, 3692, 0, 0, 0); interrupt(16, 3685, 0, 0, 0); interrupt(16, 3616, 0, 0, 0);
+	   interrupt(16, 3694, 0, 0, 0); interrupt(16, 3681, 0, 0, 0); interrupt(16, 3693, 0, 0, 0);
+	   interrupt(16, 3685, 0, 0, 0);
+	   break;
+	   case 2:
+	   /* error 2 = "Disk full." */
+	   interrupt(16, 3652, 0, 0, 0); interrupt(16, 3689, 0, 0, 0); interrupt(16, 3699, 0, 0, 0);
+	   interrupt(16, 3691, 0, 0, 0); interrupt(16, 3616, 0, 0, 0); interrupt(16, 3686, 0, 0, 0);
+	   interrupt(16, 3701, 0, 0, 0); interrupt(16, 3692, 0, 0, 0); interrupt(16, 3692, 0, 0, 0);
+	   break;
+	   default:
+	   /* default = "General error." */
+	   interrupt(16, 3655, 0, 0, 0); interrupt(16, 3685, 0, 0, 0); interrupt(16, 3694, 0, 0, 0);
+	   interrupt(16, 3685, 0, 0, 0); interrupt(16, 3698, 0, 0, 0); interrupt(16, 3681, 0, 0, 0);
+	   interrupt(16, 3692, 0, 0, 0); interrupt(16, 3616, 0, 0, 0); interrupt(16, 3685, 0, 0, 0);
+	   interrupt(16, 3698, 0, 0, 0); interrupt(16, 3698, 0, 0, 0); interrupt(16, 3695, 0, 0, 0);
+	   interrupt(16, 3698, 0, 0, 0);
+   }
+   interrupt(16, 3630, 0, 0, 0); interrupt(16, 3597, 0, 0, 0); interrupt(16, 3594, 0, 0, 0);
+   interrupt(33, 5, 0, 0, 0);
 }
 
 
@@ -287,7 +325,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 3:
       readFile(bx,cx,dx);
       break;
-    /*case 4: */
+    case 4:
+      runProgram(bx,cx);
+      break;
     case 5:
       stop();
       break;
@@ -305,8 +345,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 14:
       readInt(bx);
       break;
-/*  case 15: */
+    case 15:
+      error(bx);
+      break;
     default:
-      printString("General BlackDOS error.\r\n\0");
+      error(3);
   }
 }
