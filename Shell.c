@@ -14,7 +14,7 @@ void main()
   char arg2[80];
   char msg[80];
   char buffer[512];
-  interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
+  //interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
   interrupt(0x21,0,"=========================\r\n\0",0,0);
   interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
   interrupt(0x21,0,"=========================\r\n\0",0,0);
@@ -139,7 +139,7 @@ void main()
     }//copy
     else if (strEql(cmd,"ddir"))
     {
-      interrupt(0x21,4,"ddir",4,0);
+      interrupt(0x21,4,"ddir\0",4,0);
     }//ddir
     else if (strEql(cmd,"exec"))
     {
@@ -153,8 +153,7 @@ void main()
     }//exec
     else if (strEql(cmd,"help"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"Help\0",4,0);
     }//help
     else if (strEql(cmd,"prnt"))
     {
@@ -185,7 +184,7 @@ void main()
     }//remv
     else if (strEql(cmd,"senv"))
     {
-      interrupt(0x21,4,"Stenv",4,0);
+      interrupt(0x21,4,"Stenv\0",4,0);
     }//senv
     else if (strEql(cmd,"show"))
     {
