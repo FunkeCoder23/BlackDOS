@@ -49,3 +49,7 @@ Added Shell.c
 to test:
 run kernel, wait for shell prompt, type commands: exec, senv, boot, clrs, prnt, echo,...
 
+Added help.c
+Displays a simple help manual that lists and describes the various shell commands 
+that have been implemented. Implemented commands include: boot, clrs, echo, ddir,
+exec, help, prnt, senv, and show.
