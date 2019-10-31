@@ -50,13 +50,14 @@ void main()
   {
     for (line=(0+page*24); line<(24*(page+1)); ++line)
     {
-      if(helpText[line]=='\0') break;
+      if(helpText[line]=='\0') interrupt(0x21,5,0,0,0);  //END and return to shell
       interrupt(0x21,0,helpText[line],0,0);
     }
     interrupt(0x21,0,"Press q to quit, any other key to continue.\r\n",0,0);
     *c = interrupt(0x16,0,0,0,0); //read in cont char
     page++;
   }while(*c != 'q');
+  fin:
   interrupt(0x21,5,0,0,0);  //END and return to shell
 }
 
