@@ -50,6 +50,7 @@ void main()
   {
     for (line=(0+page*24); line<(24*(page+1)); ++line)
     {
+      if(helpText[line]=='\0') break;
       interrupt(0x21,0,helpText[line],0,0);
     }
     interrupt(0x21,0,"Press q to quit, any other key to continue.\r\n",0,0);
