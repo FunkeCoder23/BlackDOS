@@ -44,15 +44,13 @@ void main()
 
     while(input[j]!=' ' && j<79) //check for space or endline
     {
-
-    if(input[j]=='\0')  //if reaches NUL, only one arg
-    {
+      if(input[j]=='\0')  //if reaches NUL, only one arg
+      {
         args=1;
         break;
+      }
+      cmd[i++]=input[j++]; //store cmd word
     }
-
-    cmd[i++]=input[j++]; //store cmd word
-   }
 
     if(i!=4)
     {
@@ -110,7 +108,7 @@ void main()
       {
         for(i=4;input[i]!='\0';i++)
         {
-          msg[i-4]=input[i];
+          msg[i-4]=input[i]; //print msg with spaces
         }
         msg[i]='\0';
       }
@@ -130,12 +128,6 @@ void main()
         interrupt(0x21,0,"Enter file destination: \r\n",0,0);
         interrupt(0x21,1,arg2,0,0);
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
     }//copy
     else if (strEql(cmd,"ddir"))
     {
@@ -167,7 +159,7 @@ void main()
       interrupt(0x21,0,buffer,0,0);
 
     }//prnt
-    else if (cmd[0]=='r'&&cmd[1]=='e'&&cmd[2]=='m'&&cmd[3]=='v')
+    else if (strEql(cmd,"remv"))
     {
       if(args==1)
       {
@@ -175,12 +167,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,7,0,0,0);
     }//remv
     else if (strEql(cmd,"senv"))
     {
@@ -205,10 +192,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,8,arg1,buffer,&size);
     }//twet
     else
     {

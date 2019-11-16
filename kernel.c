@@ -32,19 +32,15 @@ void readFile(char, char, int);
 
 void main()
 {
+  char buffer[512];
+  makeInterrupt21();
+  interrupt(33,2,buffer,258,1);
+  interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
+  printLogo();
+  interrupt(33,4,"Shell\0",2,0);
+  interrupt(33,0,"Bad or missing command interpreter.\r\n\0",0,0);
 
- char buffer[512];
- makeInterrupt21();
- interrupt(33,2,buffer,258,1);
- interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
- printLogo();
- interrupt(33,4,"Shell\0",2,0);
- interrupt(33,0,"Bad or missing command interpreter.\r\n\0",0,0);
-
- while (1) ;
-
-
-
+  while (1) ;
 }
 
 
@@ -265,7 +261,7 @@ void readFile(char* fname, char* buffer, int* size)
       return;
     }
   }
-  interrupt(0x21,15,0,0,0);  //call error 0
+  interrupt(0x21,15,0,0,0);  //file not found
 }
 
 void error(int bx)
@@ -410,8 +406,14 @@ void deleteFile(char* name)
   }
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
+<<<<<<< HEAD
 
 }
+=======
+  return;
+}
+
+>>>>>>> Lab7
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -447,7 +449,11 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 8:
       writeFile(bx,cx,dx);
       break;
+<<<<<<< HEAD
       /*case 10: */
+=======
+      /*case 9: case 10: */
+>>>>>>> Lab7
 /*      case 11: */
     case 12:
       clearScreen(bx, cx);

@@ -21,23 +21,25 @@ bcc -ansi -c -o Shell.o Shell.c
 echo "linking shell"
 ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"
-dd if=Shell of=floppya.img bs=512 count=10 conv=notrunc seek=30
+dd if=Shell of=floppya.img bs=512 count=11 conv=notrunc seek=30
 
-echo "compiling shell"
-bcc -ansi -c -o help.o help.c
-echo "linking shell"
-ld86 -o Help -d help.o basm.o
-
-echo "compiling shell"
+echo "compiling ddir"
 bcc -ansi -c -o ddir.o ddir.c
-echo "linking shell"
+echo "linking ddir"
 ld86 -o ddir -d ddir.o basm.o
 
-./loadFile Help
+echo "compiling lab7"
+bcc -ansi -c -o lab7.o lab7.c
+echo "linking lab7"
+ld86 -o lab7 -d lab7.o basm.o
+
 ./loadFile Shell
+./loadFile Help
 ./loadFile Stenv
+./loadFile ddir
 ./loadFile fib
 ./loadFile msg
 ./loadFile kitty1
-./loadFile ddir
 ./loadFile kitty2
+./loadFile lab7
+./loadFile fpc02
