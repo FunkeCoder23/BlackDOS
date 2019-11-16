@@ -6,13 +6,17 @@ void main()
 {
   int i;//internal word iterator
   int j;//total string iterator
+  int size;
   char input[80];
   int args=0;
   char cmd[80];
   char arg1[80];
   char arg2[80];
   char msg[80];
-  interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
+  char buffer[512];
+  char text[140];
+  char fileBuff[13312];
+  //interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
   interrupt(0x21,0,"=========================\r\n\0",0,0);
   interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
   interrupt(0x21,0,"=========================\r\n\0",0,0);
@@ -21,6 +25,10 @@ void main()
   while(1)
   {
     args=0;
+    for(i=0;i<512;++i)
+    {
+      buffer[i]=0; //clear buffer
+    }
     for(i=0;i<80;++i)
     {
       input[i]='\0';  //clear input buffer
@@ -38,15 +46,13 @@ void main()
 
     while(input[j]!=' ' && j<79) //check for space or endline
     {
-
-    if(input[j]=='\0')  //if reaches NUL, only one arg
-    {
+      if(input[j]=='\0')  //if reaches NUL, only one arg
+      {
         args=1;
         break;
+      }
+      cmd[i++]=input[j++]; //store cmd word
     }
-
-    cmd[i++]=input[j++]; //store cmd word
-   }
 
     if(i!=4)
     {
@@ -104,7 +110,7 @@ void main()
       {
         for(i=4;input[i]!='\0';i++)
         {
-          msg[i-4]=input[i];
+          msg[i-4]=input[i]; //print msg with spaces
         }
         msg[i]='\0';
       }
@@ -124,17 +130,12 @@ void main()
         interrupt(0x21,0,"Enter file destination: \r\n",0,0);
         interrupt(0x21,1,arg2,0,0);
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,3,arg1,fileBuff,&size);
+      interrupt(0x21,8,arg2,fileBuff,size);
     }//copy
     else if (strEql(cmd,"ddir"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"ddir\0",4,0);
     }//ddir
     else if (strEql(cmd,"exec"))
     {
@@ -144,15 +145,11 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,arg1,4,0);
     }//exec
     else if (strEql(cmd,"help"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"Help\0",4,0);
     }//help
     else if (strEql(cmd,"prnt"))
     {
@@ -162,12 +159,11 @@ void main()
       interrupt(0x21,1,arg1,0,0);
       args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,3,arg1,buffer,&size);
+      interrupt(0x21,0,buffer,0,0);
+
     }//prnt
-    else if (cmd[0]=='r'&&cmd[1]=='e'&&cmd[2]=='m'&&cmd[3]=='v')
+    else if (strEql(cmd,"remv"))
     {
       if(args==1)
       {
@@ -175,17 +171,11 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,7,arg1,0,0);
     }//remv
     else if (strEql(cmd,"senv"))
     {
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,4,"Stenv\0",4,0);
     }//senv
     else if (strEql(cmd,"show"))
     {
@@ -195,25 +185,22 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg2,0,0);
+      interrupt(0x21,3,arg1,buffer,&size);
+      interrupt(0x21,0,buffer,0,1);
       interrupt(0x21,0,"\r\n",0,0);
     }//show
     else if (strEql(cmd,"twet"))
     {
       if(args==1)
       {
-        interrupt(0x21,0,"Enter file to twet: \r\n",0,0);
+        interrupt(0x21,0,"Enter file to save tweet: \r\n",0,0);
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,0,cmd,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
-      interrupt(0x21,0,arg1,0,0);
-      interrupt(0x21,0,"\r\n",0,0);
+      interrupt(0x21,0,"Tweet Here: (140 chars or less)\r\n",0,0);
+      interrupt(0x21,1,text,0,0);
+      text[139]=0;
+      interrupt(0x21,8,arg1,text,1);
     }//twet
     else
     {
