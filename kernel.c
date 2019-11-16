@@ -261,7 +261,7 @@ void readFile(char* fname, char* buffer, int* size)
       return;
     }
   }
-  interrupt(0x21,15,0,0,0);  //call error 0
+  interrupt(0x21,15,0,0,0);  //file not found
 }
 
 void error(int bx)

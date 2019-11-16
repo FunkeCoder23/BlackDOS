@@ -33,8 +33,8 @@ bcc -ansi -c -o lab7.o lab7.c
 echo "linking lab7"
 ld86 -o lab7 -d lab7.o basm.o
 
-./loadFile Help
 ./loadFile Shell
+./loadFile Help
 ./loadFile Stenv
 ./loadFile ddir
 ./loadFile fib
