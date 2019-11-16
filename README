@@ -41,7 +41,6 @@ Added stop()
 infinite loop
 interrupt(0x21,5,0,0,0);
 
-
 Added Shell.c
 -> added parser to take input and parse into cmd, arg1, arg2
 -> compares cmd to available commands
@@ -52,4 +51,14 @@ run kernel, wait for shell prompt, type commands: exec, senv, boot, clrs, prnt, 
 Added help.c
 Displays a simple help manual that lists and describes the various shell commands 
 that have been implemented. Implemented commands include: boot, clrs, echo, ddir,
-exec, help, prnt, senv, and show.
+exec, help, prnt, senv, show, copy, remv, and twet.
+
+Added writeFile(char*, char*, int)
+finds a free directory entry, sets up the directory entry, finds free space on the disk
+for the file, and sets the appropriate map bytes.
+interrupt(0x21,8,"filename\0",buffer,size);
+
+Added deleteFile(char*)
+change all sectors reserved for the file in the disk map to be free
+set the first byte in the file's directory entry to zero
+interrupt(0x21,7,"filename\0",0,0);
