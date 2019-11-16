@@ -256,7 +256,7 @@ void readFile(char* fname, char* buffer, int* size)
   {
     if(strEql(&dir[i],fname))
     {
-      size=dir[i+9];
+      *size=dir[i+9];
       interrupt(0x21,2,buffer,dir[i+8],dir[i+9]);//file found, load into buffer
       return;
     }
@@ -363,7 +363,7 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
   mapi-=(freeSects); //reposition mapi to correct spot
 
   dir[diri+8]=mapi; //add start sector to dir entry
-  dir[diri+9]=freeSects; //add # sectors to dir entry
+  dir[diri+9]=numberOfSectors; //add # sectors to dir entry
 
   for(freeSects=0;freeSects<numberOfSectors;freeSects++)
   {

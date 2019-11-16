@@ -23,6 +23,11 @@ ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"
 dd if=Shell of=floppya.img bs=512 count=11 conv=notrunc seek=30
 
+echo "compiling ddir"
+bcc -ansi -c -o ddir.o ddir.c
+echo "linking ddir"
+ld86 -o ddir -d ddir.o basm.o
+
 echo "compiling lab7"
 bcc -ansi -c -o lab7.o lab7.c
 echo "linking lab7"
