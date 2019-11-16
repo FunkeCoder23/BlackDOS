@@ -21,7 +21,7 @@ bcc -ansi -c -o Shell.o Shell.c
 echo "linking shell"
 ld86 -o Shell -d Shell.o basm.o
 echo "copy shell to bootdisk"
-dd if=Shell of=floppya.img bs=512 count=10 conv=notrunc seek=30
+dd if=Shell of=floppya.img bs=512 count=11 conv=notrunc seek=30
 
 echo "compiling lab7"
 bcc -ansi -c -o lab7.o lab7.c

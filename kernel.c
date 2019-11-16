@@ -332,6 +332,11 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     }
   }//end dir search, diri = empty dir
 
+      printString("Dir location\0",0);
+      interrupt(0x21,13,diri,0,0);
+      printString("\r\n\0",0);
+
+
   for(j=0;j<6;j++)
   {
     dir[diri+j]=name[j]?name[j]:0; //write name to dir
@@ -339,9 +344,16 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
 
   for(mapi=0;mapi<512;mapi++) //check each map byte
   {
-    if(mapi==0) //map byte empty
+    if(map[mapi]==0) //map byte empty
     {
       freeSects++;
+//      interrupt(0x21,0,"\r\n Free Sectors: ",0,0);
+ //     interrupt(0x21,13,freeSects,0,0);
+ //     interrupt(0x21,0,"\r\n Needed Sectors: ",0,0);
+ //     interrupt(0x21,13,numberOfSectors,0,0);
+ //     interrupt(0x21,0,"\r\n mapi: ",0,0);
+ //     interrupt(0x21,13,mapi,0,0);
+
       if(freeSects==numberOfSectors) break; //exit for loop
       else continue;
     }
