@@ -323,44 +323,36 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     {
       interrupt(0x21,15,1,0,0);//duplicate error
       return;
-     }
-    else if (dir[diri]!=0 && diri==496) //end of dir, no empties
-    {
-      interrupt(0x21,15,2,0,0);
-      interrupt(0x21,15,2,0,0); //insuff. disk space
-      return;
     }
   }//end dir search, diri = empty dir
-
-      printString("Dir location\0",0);
-      interrupt(0x21,13,diri,0,0);
-      printString("\r\n\0",0);
-
+  if(diri==512)
+  {
+     interrupt(0x21,15,2,0,0);
+     interrupt(0x21,15,2,0,0); //insuff. disk space
+     return;
+  }
 
   for(j=0;j<6;j++)
   {
-    dir[diri+j]=name[j]?name[j]:0; //write name to dir
-  } //name added to dir
+    dir[diri+j]=0; //write 0s to dir
+  }
+
+  for(j=0;j<6;j++)
+  {
+    if(name[j]==0) break;
+    dir[diri+j]=name[j]; //write names to dir
+  }
 
   for(mapi=0;mapi<512;mapi++) //check each map byte
   {
     if(map[mapi]==0) //map byte empty
     {
       freeSects++;
-//      interrupt(0x21,0,"\r\n Free Sectors: ",0,0);
- //     interrupt(0x21,13,freeSects,0,0);
- //     interrupt(0x21,0,"\r\n Needed Sectors: ",0,0);
- //     interrupt(0x21,13,numberOfSectors,0,0);
- //     interrupt(0x21,0,"\r\n mapi: ",0,0);
- //     interrupt(0x21,13,mapi,0,0);
-
       if(freeSects==numberOfSectors) break; //exit for loop
-      else continue;
     }
     else //map byte not empty
     {
       freeSects=0;
-      continue;
     }
     if (mapi==(512-numberOfSectors))
     {
@@ -368,16 +360,17 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
       return;
     }
   }//mapi= free space
-
-  for(freeSects=0;freeSects<numberOfSectors;freeSects++)
-  {
-    map[mapi+freeSects]=255;
-  }
-
-  interrupt(0x21,6,buffer,mapi,numberOfSectors); //write sectors to disk
+  mapi-=(freesects-1); //reposition mapi to correct spot
 
   dir[diri+8]=mapi; //add start sector to dir entry
   dir[diri+9]=numberOfSectors; //add # sectors to dir entry
+
+  for(freeSects=0;freeSects<numberOfSectors;freeSects++)
+  {
+    map[mapi+freeSects]=255; //map space is now used
+  }
+
+  interrupt(0x21,6,buffer,mapi,numberOfSectors); //write sectors to disk
 
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
