@@ -225,9 +225,9 @@ void clearScreen(int bg, int fg)
 
 void runProgram(char* name, int segment)
 {
-  int i, segLoc;
+  int i, segLoc,size;
   char buffer[13312];  //Big char array
-  readFile(name,buffer,segment);
+  readFile(name,buffer,&size);
   segLoc = segment * 4096; //segment * 0x1000 = base location of seg
   for (i = 0; i < 13311; ++i) //transfer 13312 bytes to memory
   {
