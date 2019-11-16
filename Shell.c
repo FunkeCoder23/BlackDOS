@@ -187,6 +187,7 @@ void main()
       }
       interrupt(0x21,3,arg1,buffer,&size);
       interrupt(0x21,0,buffer,0,1);
+      interrupt(0x21,0,"\r\n",0,0);
     }//show
     else if (strEql(cmd,"twet"))
     {
@@ -199,7 +200,7 @@ void main()
       interrupt(0x21,0,"Tweet Here: (140 chars or less)\r\n",0,0);
       interrupt(0x21,1,text,0,0);
       text[139]=0;
-      interrupt(0x21,8,arg1,text,size);
+      interrupt(0x21,8,arg1,text,1);
     }//twet
     else
     {
