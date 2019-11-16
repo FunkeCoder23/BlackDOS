@@ -14,6 +14,8 @@ void main()
   char arg2[80];
   char msg[80];
   char buffer[512];
+  char text[140];
+  char fileBuff[13312];
   //interrupt(0x21,12,10,20,0); //clear screen w/o changing colors
   interrupt(0x21,0,"=========================\r\n\0",0,0);
   interrupt(0x21,0,"Welcome to BlackDOS Shell\r\n\0",0,0);
@@ -128,6 +130,8 @@ void main()
         interrupt(0x21,0,"Enter file destination: \r\n",0,0);
         interrupt(0x21,1,arg2,0,0);
       }
+      interrupt(0x21,3,arg1,fileBuff,&size);
+      interrupt(0x21,8,arg2,fileBuff,size);
     }//copy
     else if (strEql(cmd,"ddir"))
     {
@@ -167,7 +171,7 @@ void main()
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,7,0,0,0);
+      interrupt(0x21,7,arg1,0,0);
     }//remv
     else if (strEql(cmd,"senv"))
     {
@@ -188,11 +192,14 @@ void main()
     {
       if(args==1)
       {
-        interrupt(0x21,0,"Enter file to twet: \r\n",0,0);
+        interrupt(0x21,0,"Enter file to save tweet: \r\n",0,0);
         interrupt(0x21,1,arg1,0,0);
         args=2;
       }
-      interrupt(0x21,8,arg1,buffer,&size);
+      interrupt(0x21,0,"Tweet Here: (140 chars or less)\r\n",0,0);
+      interrupt(0x21,1,text,0,0);
+      text[139]=0;
+      interrupt(0x21,8,arg1,text,size);
     }//twet
     else
     {
