@@ -360,7 +360,7 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
       return;
     }
   }//mapi= free space
-  mapi-=(freesects-1); //reposition mapi to correct spot
+  mapi-=(freeSects); //reposition mapi to correct spot
 
   dir[diri+8]=mapi; //add start sector to dir entry
   dir[diri+9]=numberOfSectors; //add # sectors to dir entry
