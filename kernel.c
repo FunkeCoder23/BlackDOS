@@ -369,6 +369,7 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
 
 void deleteFile(char* name)
 {
+/*
   char dir[512];
   char map[512];
   int i;
@@ -377,6 +378,7 @@ void deleteFile(char* name)
   {
     if(!strEql(&dir[i], name)) //if file name not found, terminate
     {
+      interrupt(0x21,15,0,0,0);
       interrupt(0x21,15,0,0,0);
     }
     else
@@ -388,6 +390,8 @@ void deleteFile(char* name)
   }
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
+*/
+
 }
 
 
