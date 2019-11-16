@@ -309,54 +309,60 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
 {
   char dir[512];
   char map[512];
-  int i;
-  int j;
-  int mapper;
-  int freeSects;
-  interrupt(0x21,2,dir,257,1); //load disk dir into dir
+  int diri; //directory iterator
+  int mapi; //map iterator
+  int j; //internal iterator
+  int freeSects; //# Sectors free
+
+  interrupt(0x21,2,dir,257,1); //load diskdir into dir
   interrupt(0x21,2,map,256,1); //load diskmap into map
-  for(i=0;i<512;i+=16)
+
+  for(diri=0;diri<512;diri+=16) //search through directory
   {
-    if(strEql(&dir[i],name))
+    if(dir[diri]==0) //empty entry
     {
-      interrupt(0x33,15,1,0,0);//file found, duplicate error
-      return;
+      break; //break out of loop, diri=addr of empty, nondupe
     }
+    else if(strEql(&dir[diri],name)) //dupe found
+    {
+      interrupt(0x33,15,1,0,0);//duplicate error
+      return;
+     }
+    else if (dir[diri]!=0 && diri==496) //end of dir, no empties
+    {
+      interrupt(0x33,15,2,0,0); //insuff. disk space
+    }
+  }//end dir search, diri = empty dir
+
+  for(j=0;j<6;j++)
+  {
+    dir[diri+j]=name[j]?name[j]:0; //write name to dir
+  } //name added to dir
+
+  for(mapi=0;mapi<512;mapi++) //check each map byte
+  {
+    for(freeSects=0;freeSects<numberOfSectors;freeSects++) //check suff. sector
+    {
+      if(map[mapi+freeSects]!=0) break; //continue mapi loop
+    }
+    if (freeSects==(numberOfSectors-1)) break; // found enough free space
     else
     {
-      if(dir[i]==0)//if dir at i is empty
-      {
-        for(j=0;j<6;j++)  //write name to dir
-        {
-          if(name[j])
-          dir[i+j]=name[j]; //if <6 char, write 0s
-          else
-          dir[i+j]=0;
-        }
-        for(mapper=0;mapper<512-numberOfSectors;mapper++)
-        {
-          for(freeSects=0;freeSects<numberOfSectors;freeSects++)
-          {
-            if(map[mapper+freeSects]!=0) break; //storage space ful
-            if(freeSects==(numberOfSectors-1)) //enough storage space
-            {
-              for(freeSects=0;freeSects<numberOfSectors;freeSects++)
-              {
-                map[mapper+freeSects]=255;
-              }
-              dir[i+j++]=mapper; //write start sector to dir
-              dir[i+j]=numberOfSectors; //write #sects to dir
-            }
-          }
-
-        }
-      }
+      interrupt(0x33,15,2,0,0); //insuff. disk space
+      return;
     }
-  }
-  for(i=mapper;i<mapper+numberOfSectors;i++)
+  }//mapi= free space
+
+  for(freeSects=0;freeSects<numberOfSectors;freeSects++)
   {
-    map[i]=buffer[i-mapper];//write buffer to correct sectors
+    map[mapi+freeSects]=255;
   }
+
+  interrupt(0x33,6,buffer,mapi,numberOfSectors); //write sectors to disk
+
+  dir[diri+8]=mapi; //add start sector to dir entry
+  dir[diri+9]=numberOfSectors; //add # sectors to dir entry
+
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
 }
