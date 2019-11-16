@@ -406,14 +406,9 @@ void deleteFile(char* name)
   }
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
-<<<<<<< HEAD
-
-}
-=======
-  return;
 }
 
->>>>>>> Lab7
+
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -449,11 +444,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 8:
       writeFile(bx,cx,dx);
       break;
-<<<<<<< HEAD
       /*case 10: */
-=======
-      /*case 9: case 10: */
->>>>>>> Lab7
+     /*case 9: case 10: */
 /*      case 11: */
     case 12:
       clearScreen(bx, cx);
