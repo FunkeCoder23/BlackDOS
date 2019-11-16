@@ -260,7 +260,7 @@ void readFile(char* fname, char* buffer, int* size)
   {
     if(strEql(&dir[i],fname))
     {
-      size=dir[i+9];
+      *size=dir[i+9];
       interrupt(0x21,2,buffer,dir[i+8],dir[i+9]);//file found, load into buffer
       return;
     }
