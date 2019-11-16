@@ -325,12 +325,14 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     }
     else if(strEql(&dir[diri],name)) //dupe found
     {
-      interrupt(0x33,15,1,0,0);//duplicate error
+      interrupt(0x21,15,1,0,0);//duplicate error
       return;
      }
     else if (dir[diri]!=0 && diri==496) //end of dir, no empties
     {
-      interrupt(0x33,15,2,0,0); //insuff. disk space
+      interrupt(0x21,15,2,0,0);
+      interrupt(0x21,15,2,0,0); //insuff. disk space
+      return;
     }
   }//end dir search, diri = empty dir
 
@@ -339,16 +341,18 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     dir[diri+j]=name[j]?name[j]:0; //write name to dir
   } //name added to dir
 
-  for(mapi=0;mapi<512;mapi++) //check each map byte
+  for(mapi=0;mapi<(512-numberOfSectors+1);mapi++) //check each map byte
   {
-    for(freeSects=0;freeSects<numberOfSectors;freeSects++) //check suff. sector
-    {
-      if(map[mapi+freeSects]!=0) break; //continue mapi loop
-    }
-    if (freeSects==(numberOfSectors-1)) break; // found enough free space
+    if(mapi==0)
+      freeSects++;
     else
     {
-      interrupt(0x33,15,2,0,0); //insuff. disk space
+      freeSects=0;
+    }
+    if(freeSects==numberOfSectors)  break;
+    else if (mapi==512-numberOfSectors+1)
+    {
+      interrupt(0x21,15,2,0,0); //disk full
       return;
     }
   }//mapi= free space
@@ -358,7 +362,7 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     map[mapi+freeSects]=255;
   }
 
-  interrupt(0x33,6,buffer,mapi,numberOfSectors); //write sectors to disk
+  interrupt(0x21,6,buffer,mapi,numberOfSectors); //write sectors to disk
 
   dir[diri+8]=mapi; //add start sector to dir entry
   dir[diri+9]=numberOfSectors; //add # sectors to dir entry
