@@ -32,19 +32,19 @@ void readFile(char, char, int);
 
 void main()
 {
-
- char buffer[512];
- makeInterrupt21();
- interrupt(33,2,buffer,258,1);
- interrupt(33,12,buffer[0]+1,buffer[1]+1,0);
- printLogo();
- interrupt(33,4,"Shell\0",2,0);
- interrupt(33,0,"Bad or missing command interpreter.\r\n\0",0,0);
-
- while (1) ;
-
-
-
+char buffer[12288]; int size;
+/* Step 1 - load/edit/print file */
+interrupt(33,3,"fpc02\0",buffer,&size);
+buffer[5] = '2'; buffer[6] = '0';
+buffer[7] = '1'; buffer[8] = '9';
+interrupt(33,0,buffer,0,0);
+interrupt(33,0,"\r\n\0",0,0);
+/* Step 2 - write revised file */
+interrupt(33,8,"fall19\0",buffer,size);
+/* Step 3 - delete original file */
+interrupt(33,7,"fpc02\0",0,0);
+/* Step 4 - terminate program and resume shell */
+interrupt(33,5,0,0,0);
 }
 
 
@@ -305,6 +305,85 @@ void error(int bx)
    interrupt(33, 5, 0, 0, 0);
 }
 
+void writeFile(char* name, char* buffer, int numberOfSectors)
+{
+  char dir[512];
+  char map[512];
+  int i;
+  int j;
+  int mapper;
+  int freeSects;
+  interrupt(0x21,2,dir,257,1); //load disk dir into dir
+  interrupt(0x21,2,map,256,1); //load diskmap into map
+  for(i=0;i<512;i+=16)
+  {
+    if(strEql(&dir[i],name))
+    {
+      interrupt(0x33,15,1,0,0);//file found, duplicate error
+      return;
+    }
+    else
+    {
+      if(dir[i]==0)//if dir at i is empty
+      {
+        for(j=0;j<6;j++)  //write name to dir
+        {
+          if(name[j])
+          dir[i+j]=name[j]; //if <6 char, write 0s
+          else
+          dir[i+j]=0;
+        }
+        for(mapper=0;mapper<512-numberOfSectors;mapper++)
+        {
+          for(freeSects=0;freeSects<numberOfSectors;freeSects++)
+          {
+            if(map[mapper+freeSects]!=0) break; //storage space ful
+            if(freeSects==(numberOfSectors-1)) //enough storage space
+            {
+              for(freeSects=0;freeSects<numberOfSectors;freeSects++)
+              {
+                map[mapper+freeSects]=255;
+              }
+              dir[i+j++]=mapper; //write start sector to dir
+              dir[i+j]=numberOfSectors; //write #sects to dir
+            }
+          }
+
+        }
+      }
+    }
+  }
+  for(i=mapper;i<mapper+numberOfSectors;i++)
+  {
+    map[i]=buffer[i-mapper];//write buffer to correct sectors
+  }
+  interrupt(0x21,6,dir,257,1); //write disk dir into dir
+  interrupt(0x21,6,map,256,1); //write diskmap into map
+}
+
+void deleteFile(char* name)
+{
+  char dir[512];
+  char map[512];
+  int i;
+  int j;
+  for(i=0; i<512; i+=16)
+  {
+    if(!strEql(&dir[i], name)) //if file name not found, terminate
+    {
+      interrupt(0x21,15,0,0,0);
+    }
+    else
+    {
+      dir[i]=0;    //erasing file name from directory
+      dir[i+=6]=0; //erasing file contents from directry
+      map[i+=7]=0; //set corresponding map bytes to zero
+    }
+  }
+  interrupt(0x21,6,dir,257,1); //write disk dir into dir
+  interrupt(0x21,6,map,256,1); //write diskmap into map
+}
+
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -334,7 +413,13 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 6:
       writeSectors(bx,cx,dx);
       break;
-      /*case 7: case 8: case 9: case 10: */
+    case 7:
+      deleteFile(bx);
+      break;
+    case 8:
+      writeFile(bx,cx,dx);
+      break;
+      /*case 9: case 10: */
 /*      case 11: */
     case 12:
       clearScreen(bx, cx);
