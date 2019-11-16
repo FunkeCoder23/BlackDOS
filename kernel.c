@@ -337,16 +337,20 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
     dir[diri+j]=name[j]?name[j]:0; //write name to dir
   } //name added to dir
 
-  for(mapi=0;mapi<(512-numberOfSectors+1);mapi++) //check each map byte
+  for(mapi=0;mapi<512;mapi++) //check each map byte
   {
-    if(mapi==0)
+    if(mapi==0) //map byte empty
+    {
       freeSects++;
-    else
+      if(freeSects==numberOfSectors) break; //exit for loop
+      else continue;
+    }
+    else //map byte not empty
     {
       freeSects=0;
+      continue;
     }
-    if(freeSects==numberOfSectors)  break;
-    else if (mapi==512-numberOfSectors+1)
+    if (mapi==(512-numberOfSectors))
     {
       interrupt(0x21,15,2,0,0); //disk full
       return;
