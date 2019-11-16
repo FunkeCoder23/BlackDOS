@@ -360,7 +360,7 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
       return;
     }
   }//mapi= free space
-  mapi-=(freeSects); //reposition mapi to correct spot
+  mapi-=(freeSects-1); //reposition mapi to correct spot
 
   dir[diri+8]=mapi; //add start sector to dir entry
   dir[diri+9]=numberOfSectors; //add # sectors to dir entry
@@ -378,29 +378,35 @@ void writeFile(char* name, char* buffer, int numberOfSectors)
 
 void deleteFile(char* name)
 {
-/*
   char dir[512];
   char map[512];
-  int i;
-  int j;
+  int i, start, noSec;
+
+  interrupt(0x21,2,dir,257,1); //load diskdir into dir
+  interrupt(0x21,2,map,256,1); //load diskmap into map
+
   for(i=0; i<512; i+=16)
   {
-    if(!strEql(&dir[i], name)) //if file name not found, terminate
-    {
-      interrupt(0x21,15,0,0,0);
-      interrupt(0x21,15,0,0,0);
-    }
-    else
+    if(strEql(&dir[i], name)) //if file name found
     {
       dir[i]=0;    //erasing file name from directory
-      dir[i+=6]=0; //erasing file contents from directry
-      map[i+=7]=0; //set corresponding map bytes to zero
+      start=dir[i+8];  //get start sector from directory
+      noSec=dir[i+9];  //get num sectors from directory
+      for(i=start;i<(start+noSec);i++)
+      {
+        map[i]=0;
+      }
+      break;
     }
+  }
+  if(i==512) //file name not found
+  {
+    interrupt(0x21,15,0,0,0);
+    return;
   }
   interrupt(0x21,6,dir,257,1); //write disk dir into dir
   interrupt(0x21,6,map,256,1); //write diskmap into map
-*/
-
+  return;
 }
 
 

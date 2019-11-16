@@ -36,10 +36,10 @@ ld86 -o lab7 -d lab7.o basm.o
 ./loadFile Help
 ./loadFile Shell
 ./loadFile Stenv
+./loadFile ddir
 ./loadFile fib
 ./loadFile msg
 ./loadFile kitty1
-./loadFile ddir
 ./loadFile kitty2
 ./loadFile lab7
 ./loadFile fpc02
