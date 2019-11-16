@@ -305,6 +305,113 @@ void error(int bx)
    interrupt(33, 5, 0, 0, 0);
 }
 
+void writeFile(char* name, char* buffer, int numberOfSectors)
+{
+  char dir[512];
+  char map[512];
+  int diri; //directory iterator
+  int mapi; //map iterator
+  int j; //internal iterator
+  int freeSects; //# Sectors free
+
+  interrupt(0x21,2,dir,257,1); //load diskdir into dir
+  interrupt(0x21,2,map,256,1); //load diskmap into map
+
+  for(diri=0;diri<512;diri+=16) //search through directory
+  {
+    if(dir[diri]==0) //empty entry
+    {
+      break; //break out of loop, diri=addr of empty, nondupe
+    }
+    else if(strEql(&dir[diri],name)) //dupe found
+    {
+      interrupt(0x21,15,1,0,0);//duplicate error
+      return;
+    }
+  }//end dir search, diri = empty dir
+  if(diri==512)
+  {
+     interrupt(0x21,15,2,0,0);
+     interrupt(0x21,15,2,0,0); //insuff. disk space
+     return;
+  }
+
+  for(j=0;j<6;j++)
+  {
+    dir[diri+j]=0; //write 0s to dir
+  }
+
+  for(j=0;j<6;j++)
+  {
+    if(name[j]==0) break;
+    dir[diri+j]=name[j]; //write names to dir
+  }
+
+  for(mapi=0;mapi<512;mapi++) //check each map byte
+  {
+    if(map[mapi]==0) //map byte empty
+    {
+      freeSects++;
+      if(freeSects==numberOfSectors) break; //exit for loop
+    }
+    else //map byte not empty
+    {
+      freeSects=0;
+    }
+    if (mapi==(512-numberOfSectors))
+    {
+      interrupt(0x21,15,2,0,0); //disk full
+      return;
+    }
+  }//mapi= free space
+  mapi-=(freeSects-1); //reposition mapi to correct spot
+
+  dir[diri+8]=mapi; //add start sector to dir entry
+  dir[diri+9]=numberOfSectors; //add # sectors to dir entry
+
+  for(freeSects=0;freeSects<numberOfSectors;freeSects++)
+  {
+    map[mapi+freeSects]=255; //map space is now used
+  }
+
+  interrupt(0x21,6,buffer,mapi,numberOfSectors); //write sectors to disk
+
+  interrupt(0x21,6,dir,257,1); //write disk dir into dir
+  interrupt(0x21,6,map,256,1); //write diskmap into map
+}
+
+void deleteFile(char* name)
+{
+  char dir[512];
+  char map[512];
+  int i, start, noSec;
+
+  interrupt(0x21,2,dir,257,1); //load diskdir into dir
+  interrupt(0x21,2,map,256,1); //load diskmap into map
+
+  for(i=0; i<512; i+=16)
+  {
+    if(strEql(&dir[i], name)) //if file name found
+    {
+      dir[i]=0;    //erasing file name from directory
+      start=dir[i+8];  //get start sector from directory
+      noSec=dir[i+9];  //get num sectors from directory
+      for(i=start;i<(start+noSec);i++)
+      {
+        map[i]=0;
+      }
+      break;
+    }
+  }
+  if(i==512) //file name not found
+  {
+    interrupt(0x21,15,0,0,0);
+    return;
+  }
+  interrupt(0x21,6,dir,257,1); //write disk dir into dir
+  interrupt(0x21,6,map,256,1); //write diskmap into map
+
+}
 
 /* ^^^^^^^^^^^^^^^^^^^^^^^^ */
 /* MAKE FUTURE UPDATES HERE */
@@ -334,7 +441,13 @@ void handleInterrupt21(int ax, int bx, int cx, int dx)
     case 6:
       writeSectors(bx,cx,dx);
       break;
-      /*case 7: case 8: case 9: case 10: */
+    case 7:
+      deleteFile(bx);
+      break;
+    case 8:
+      writeFile(bx,cx,dx);
+      break;
+      /*case 10: */
 /*      case 11: */
     case 12:
       clearScreen(bx, cx);
